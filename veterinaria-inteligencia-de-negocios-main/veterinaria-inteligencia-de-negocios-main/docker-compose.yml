@@ -1,0 +1,45 @@
+services:
+
+
+  # =====================================================
+  # Backend Orquestador (Spring Boot - Consolidado)
+  # =====================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: consolidado-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://host.docker.internal:64419;databaseName=BD_CONSOLIDADO;encrypt=false;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: Castillon@2025
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    ports:
+      - "8080:8080"
+    networks:
+      - consolidado-net
+
+  # =====================================================
+  # Frontend React (Vite dev server con proxy a backend)
+  # =====================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: consolidado-frontend
+    depends_on:
+      - backend
+    environment:
+      API_TARGET: http://backend:8080
+    ports:
+      - "5173:5173"
+    networks:
+      - consolidado-net
+
+networks:
+  consolidado-net:
+    driver: bridge
+
+volumes:
+  sqlserver-data:

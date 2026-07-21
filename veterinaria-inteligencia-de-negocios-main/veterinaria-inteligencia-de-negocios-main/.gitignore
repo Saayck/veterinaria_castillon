@@ -1,0 +1,25 @@
+# Node
+node_modules/
+dist/
+build/
+.env
+.env.local
+
+# Java / Maven
+target/
+*.jar
+*.war
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.metadata/
+
+# Logs
+logs/
+*.log
+
+# Docker
+docker-compose.override.yml
