@@ -1,6 +1,5 @@
 package com.consolidado.sistema;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -9,11 +8,11 @@ import java.util.Map;
 
 /**
  * CRUD de productos y clientes por sistema operacional.
- * {sistema} = "veterinaria" | "castillonv2". Solo ADMIN.
+ * {sistema} = "veterinaria" | "castillonv2". La autorización por rol/sistema se define en
+ * SecurityConfig: veterinaria -> ADMIN; castillonv2 -> ADMIN o CASTILLONV2.
  */
 @RestController
 @RequestMapping("/api/sistemas/{sistema}")
-@PreAuthorize("hasRole('ADMIN')")
 public class SistemaController {
 
     private final SistemaService service;

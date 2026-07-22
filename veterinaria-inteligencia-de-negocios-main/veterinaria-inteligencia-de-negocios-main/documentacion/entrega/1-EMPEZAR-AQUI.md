@@ -77,8 +77,9 @@ Abre **http://localhost:5173** → "Iniciar Sesión".
 
 | Rol | Usuario | Contraseña | Qué puede hacer |
 |-----|---------|-----------|-----------------|
-| **Admin** | `admin` | `admin123` | Productos (CRUD), Clientes, Consolidado, ETL, Power BI |
+| **Admin** | `admin` | `admin123` | Todo: Productos (CRUD), Clientes, Consolidado, ETL, Power BI |
 | **Usuario** | `user` | `admin123` | Solo lectura de la consola consolidada |
+| **Operador CastillónV2** | `castillonv2` | `castillon123` | **Solo** el sistema CastillónV2 (CRUD de sus productos y clientes) |
 
 También puedes **registrar** un usuario nuevo (rol solo lectura) desde la pantalla de registro.
 

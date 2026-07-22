@@ -79,6 +79,11 @@ IF NOT EXISTS (SELECT 1 FROM dbo.USUARIO WHERE USERNAME = 'user')
   INSERT INTO dbo.USUARIO (USERNAME, PASSWORD_HASH, ROL)
   VALUES ('user', '$2a$10$K.cYJjRBnNYWihyK/IvbyuFjcuk.8.GmcldLNJOoTBN4rDhUmc0ce', 'USER');
 GO
+-- Operador exclusivo del sistema CASTILLONV2 (password: castillon123)
+IF NOT EXISTS (SELECT 1 FROM dbo.USUARIO WHERE USERNAME = 'castillonv2')
+  INSERT INTO dbo.USUARIO (USERNAME, PASSWORD_HASH, ROL)
+  VALUES ('castillonv2', '$2a$10$hJo/zApYfShcRzaWaJYLLeS1MH6g9b0AhGR3ajQ4s4JM8H.wNxy/6', 'CASTILLONV2');
+GO
 
 -- ------------------------------------------------------------
 -- 4) CONFIGURACION (clave/valor). Guarda el link del reporte Power BI

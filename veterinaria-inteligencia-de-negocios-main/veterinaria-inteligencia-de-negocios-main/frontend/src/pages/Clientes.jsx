@@ -5,9 +5,9 @@ import Layout from '../components/Layout';
 import { toast } from 'sonner';
 import { Search, Database, Plus, Pencil, Trash2 } from 'lucide-react';
 
+// El admin solo gestiona Veterinaria; CastillónV2 tiene su propio portal/operador.
 const SISTEMAS = [
   { id: 'veterinaria', label: 'Veterinaria Castillón', bd: 'BD_CASTILLON_VETERINARIA', color: 'bg-blue-100 text-blue-700' },
-  { id: 'castillonv2', label: 'Castillón V2', bd: 'CASTILLONV2', color: 'bg-emerald-100 text-emerald-700' },
 ];
 
 function ClienteModal({ cliente, onSave, onClose }) {
@@ -39,7 +39,7 @@ function ClienteModal({ cliente, onSave, onClose }) {
 
 export default function Clientes() {
   const queryClient = useQueryClient();
-  const [sistema, setSistema] = useState('veterinaria');
+  const sistema = 'veterinaria';
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(null);
   const activo = SISTEMAS.find((s) => s.id === sistema);
@@ -77,15 +77,6 @@ export default function Clientes() {
           </p>
         </div>
         <button onClick={() => setModal({})} className="btn-primary"><Plus className="h-5 w-5" /> Nuevo Cliente</button>
-      </div>
-
-      <div className="mb-4 flex flex-wrap gap-2">
-        {SISTEMAS.map((s) => (
-          <button key={s.id} onClick={() => setSistema(s.id)}
-            className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${sistema === s.id ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}`}>
-            {s.label}
-          </button>
-        ))}
       </div>
 
       <div className="relative mb-4 max-w-sm">

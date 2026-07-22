@@ -56,10 +56,11 @@ docker compose up -d --build
 ## 👤 Usuarios
 
 
-| Rol                    | Usuario | Contraseña |
-| ---------------------- | ------- | ----------- |
-| Admin                  | `admin` | `admin123`  |
-| Usuario (solo lectura) | `user`  | `admin123`  |
+| Rol                    | Usuario | Contraseña | Acceso |
+| ---------------------- | ------- | ----------- | ------ |
+| Admin                  | `admin` | `admin123`  | Todo (2 sistemas + Consolidado + Power BI) |
+| Usuario (solo lectura) | `user`  | `admin123`  | Consola consolidada (solo lectura) |
+| Operador CastillónV2   | `castillonv2` | `castillon123` | **Solo** el sistema CastillónV2 (CRUD productos/clientes) |
 
 ## 🗂️ Estructura
 

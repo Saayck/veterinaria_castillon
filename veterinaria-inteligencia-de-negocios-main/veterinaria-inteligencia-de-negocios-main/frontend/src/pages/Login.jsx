@@ -17,7 +17,8 @@ export default function Login() {
     try {
       const user = await login(username, password);
       toast.success(`Bienvenido, ${user.username}`);
-      navigate(user.rol === 'ADMIN' ? '/dashboard' : '/consolidado');
+      const destino = user.rol === 'ADMIN' ? '/dashboard' : user.rol === 'CASTILLONV2' ? '/castillonv2' : '/consolidado';
+      navigate(destino);
     } catch {
       toast.error('Credenciales inválidas');
     } finally {

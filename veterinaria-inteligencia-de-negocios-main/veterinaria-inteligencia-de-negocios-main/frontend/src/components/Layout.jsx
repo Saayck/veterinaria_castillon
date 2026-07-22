@@ -1,34 +1,41 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, Package, BarChart3, Users } from 'lucide-react';
+import { LogOut, Package, BarChart3, Users, Database } from 'lucide-react';
 
 export default function Layout({ children }) {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const rol = user?.rol;
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const navItems = isAdmin
-    ? [
-        { to: '/dashboard', label: 'Productos', icon: Package },
-        { to: '/clientes', label: 'Clientes', icon: Users },
-        { to: '/consolidado', label: 'Consolidado', icon: BarChart3 },
-      ]
-    : [
-        { to: '/consolidado', label: 'Consolidado', icon: BarChart3 },
-        { to: '/catalog', label: 'Catálogo', icon: Package },
-      ];
+  let navItems;
+  if (rol === 'ADMIN') {
+    navItems = [
+      { to: '/dashboard', label: 'Productos', icon: Package },
+      { to: '/clientes', label: 'Clientes', icon: Users },
+      { to: '/consolidado', label: 'Consolidado', icon: BarChart3 },
+    ];
+  } else if (rol === 'CASTILLONV2') {
+    navItems = [{ to: '/castillonv2', label: 'Sistema Castillón V2', icon: Database }];
+  } else {
+    navItems = [
+      { to: '/consolidado', label: 'Consolidado', icon: BarChart3 },
+      { to: '/catalog', label: 'Catálogo', icon: Package },
+    ];
+  }
+  const home = rol === 'ADMIN' ? '/dashboard' : rol === 'CASTILLONV2' ? '/castillonv2' : '/consolidado';
 
   return (
     <div className="min-h-screen bg-slate-50">
       <nav className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-6">
-            <button onClick={() => navigate(isAdmin ? '/dashboard' : '/consolidado')}
+            <button onClick={() => navigate(home)}
               className="font-display text-lg font-bold text-slate-900">
               Consolidado<span className="text-blue-600">.</span>
             </button>

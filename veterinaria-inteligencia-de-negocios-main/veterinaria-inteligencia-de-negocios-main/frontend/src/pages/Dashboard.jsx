@@ -8,9 +8,9 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Plus, Pencil, Trash2, Database } from 'lucide-react';
 
+// El admin solo gestiona Veterinaria; CastillónV2 tiene su propio portal/operador.
 const SISTEMAS = [
   { id: 'veterinaria', label: 'Veterinaria Castillón', bd: 'BD_CASTILLON_VETERINARIA' },
-  { id: 'castillonv2', label: 'Castillón V2', bd: 'CASTILLONV2' },
 ];
 
 function ProductModal({ producto, sistema, categorias, unidades, onSave, onClose }) {
@@ -79,10 +79,10 @@ function normCatalogo(p) {
 export default function Dashboard() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
-  const [sistema, setSistema] = useState('veterinaria');
+  const sistema = 'veterinaria';
   const [modal, setModal] = useState(null);
   const container = useRef(null);
-  const isVet = sistema === 'veterinaria';
+  const isVet = true;
 
   const { data: productos = [], isLoading } = useQuery({
     queryKey: ['productos', isAdmin, sistema],
@@ -140,17 +140,6 @@ export default function Dashboard() {
             </button>
           )}
         </div>
-
-        {isAdmin && (
-          <div className="mb-4 flex flex-wrap gap-2">
-            {SISTEMAS.map((s) => (
-              <button key={s.id} onClick={() => setSistema(s.id)}
-                className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${sistema === s.id ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}`}>
-                {s.label}
-              </button>
-            ))}
-          </div>
-        )}
 
         {modal && (
           <ProductModal
