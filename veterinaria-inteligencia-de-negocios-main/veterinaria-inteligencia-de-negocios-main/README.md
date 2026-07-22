@@ -6,16 +6,15 @@ proceso **ETL**, análisis con **IA** y **Power BI**.
 
 ---
 
-## ⚡ La forma más fácil (un clic)
+## ⚡ La forma más fácil (2 botones)
 
-Necesitas tener instalados: **Docker Desktop** (abierto) y **SQL Server** (con `sa` y el puerto 1433).
+Solo necesitas tener instalados: **Docker Desktop** y **SQL Server** (usuario `sa`, puerto 1433).
+*(No hace falta abrirlos: los scripts encienden Docker solos.)*
 
-
-| Doble clic en…         | Qué hace                                                                               |
-| ----------------------- | --------------------------------------------------------------------------------------- |
-| **`INSTALAR.bat`**      | 👉 Instala TODO: restaura las 5 bases, configura y levanta la app, y abre el navegador. |
-| **`INICIAR-APP.bat`**   | Vuelve a iniciar la app (después de reiniciar la PC).                                  |
-| **`PUBLICAR-LINK.bat`** | (Opcional) genera el link público para que otros entren.                               |
+| Doble clic en… | Cuándo | Qué hace |
+|---|---|---|
+| **`INSTALAR.bat`** | Una sola vez | 👉 TODO: enciende Docker, restaura las 5 bases, configura, levanta la app y abre el navegador. |
+| **`ENCENDER.bat`** | Cada día / tras reiniciar | Enciende Docker + app + **link público** + navegador. Deja la ventana abierta. |
 
 Luego entra con **`admin` / `admin123`**. Eso es todo. *(Si prefieres hacerlo a mano, ver la guía 1️⃣ abajo.)*
 

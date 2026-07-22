@@ -110,49 +110,81 @@ dominio tuyo** agregado a Cloudflare. Pasos: `cloudflared tunnel login/create`, 
 
 ---
 
-## 5. Estrategia B — Todo en la nube (gratis)
+## 5. Estrategia B — Todo en la nube: Vercel + Render + AWS RDS (paso a paso)
 
-### 5.1 Bases de datos → SQL Server en una VM gratuita
-Cloudflare/Vercel/Netlify **no hospedan SQL Server**. Opciones gratis reales:
+> **Realidad:** Vercel solo hospeda el **frontend** (no corre Java ni SQL Server).
+> Backend → **Render** (free). Base de datos → **AWS RDS SQL Server Express**
+> (free tier 12 meses). Orden: GitHub → BD → Backend → Frontend.
 
-- **Oracle Cloud — Always Free** (recomendada): VM ARM generosa, gratis “para siempre”.
-- Google Cloud / AWS free tier (con límites de tiempo).
-
-Pasos en la VM (Ubuntu):
-```bash
-# 1. SQL Server en Docker
-docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=TuPassword123!" \
-  -p 1433:1433 --name sql -d mcr.microsoft.com/mssql/server:2022-latest
-
-# 2. Sube los archivos de la tabla §2 a la VM (scp/rsync) y restaura:
-#    - ejecuta los .sql con sqlcmd (dentro del contenedor o con mssql-tools)
-#    - copia los .bak al contenedor y RESTORE DATABASE ... WITH MOVE
-# 3. Abre el puerto 1433 en el firewall/Security List de la VM.
+### 5.0 Requisito — subir el proyecto a GitHub
+Vercel y Render despliegan desde GitHub.
+```powershell
+git add -A
+git commit -m "deploy a la nube"
+# crea un repo vacío en github.com y luego:
+git remote add origin https://github.com/TU_USUARIO/consolidado.git
+git push -u origin main
 ```
-Alternativa gestionada: **Azure SQL Database (free tier)** — pero **no restaura `.bak`**
-directamente; habría que migrar con BACPAC o correr los scripts. Más fricción.
+*(Los `.bak` están en `.gitignore` y no se suben — la BD se carga aparte, ver 5.1.)*
 
-### 5.2 Backend → Render / Railway / Koyeb (free)
-Se sube el **código de `backend/`** (ya trae `Dockerfile`).
-- Web Service → Docker → root `backend/`.
-- Variables de entorno:
-  ```
-  SPRING_PROFILES_ACTIVE=docker
-  SQLSERVER_HOST=<IP pública de la VM>
-  SQLSERVER_PORT=1433
-  SQLSERVER_USERNAME=sa
-  SQLSERVER_PASSWORD=********
-  JWT_SECRET=<secreto largo único>
-  CORS_ALLOWED_ORIGINS=https://<tu-frontend-en-pages>
-  ```
+### 5.1 Base de datos → AWS RDS SQL Server Express (gratis 12 meses)
+1. Crea cuenta en **aws.amazon.com** (pide tarjeta; el free tier no cobra).
+2. Consola AWS → **RDS → Create database**:
+   - Engine: **Microsoft SQL Server** → Edition: **Express**.
+   - Template: **Free tier** → instancia `db.t3.micro`, 20 GB.
+   - Master username: `adminsql` (RDS no permite `sa`) + contraseña.
+   - **Public access: Yes**.
+3. En el **Security Group** de la BD: regla de entrada TCP **1433** desde `0.0.0.0/0`
+   (o mejor: tu IP + las IPs de salida de Render).
+4. Espera estado *Available* y copia el **Endpoint** (`xxxx.rds.amazonaws.com`).
+5. **Carga las bases desde tu PC** (las 3 de scripts + migración):
+   ```powershell
+   cd sql-init
+   sqlcmd -S "TU-ENDPOINT.rds.amazonaws.com,1433" -U adminsql -P "TUPASS" -C -i 00-crear-databases.sql
+   sqlcmd -S "TU-ENDPOINT...,1433" -U adminsql -P "TUPASS" -C -f 65001 -i BD_CASTILLON_VETERINARIA.sql
+   sqlcmd -S "TU-ENDPOINT...,1433" -U adminsql -P "TUPASS" -C -f 65001 -i CASTILLONV2.sql
+   sqlcmd -S "TU-ENDPOINT...,1433" -U adminsql -P "TUPASS" -C -f 65001 -i BD_CONSOLIDADO.sql
+   sqlcmd -S "TU-ENDPOINT...,1433" -U adminsql -P "TUPASS" -C -i migracion-dump.sql
+   ```
+6. ⚠️ **Las 2 bases Samar (`.bak`) no se restauran directo en RDS.** Dos opciones:
+   - Restaurarlas vía **S3 + opción `SQLSERVER_BACKUP_RESTORE`** de RDS (subes los `.bak`
+     a un bucket S3 y ejecutas `exec msdb.dbo.rds_restore_database ...`), o
+   - Generar scripts `.sql` de esas 2 bases (SSMS → Tasks → Generate Scripts →
+     *Schema and data*) y ejecutarlos igual que las demás. ← más simple.
 
-### 5.3 Frontend → Cloudflare Pages (free)
-Se sube el **build** (`frontend/dist`).
-- Build command `npm run build`, output `dist`.
-- Como Pages sirve estático (no proxya `/api`), define la URL del backend: agrega
-  `VITE_API_URL=https://<tu-backend>` y en `src/services/api.js` usa
-  `baseURL: import.meta.env.VITE_API_URL || ''`. O configura una Pages Function que
-  reenvíe `/api/*` al backend.
+### 5.2 Backend → Render (gratis)
+1. Cuenta en **render.com** (login con GitHub).
+2. **New → Web Service** → conecta tu repo.
+3. Config: **Root Directory** = `backend` · **Runtime** = Docker (detecta el Dockerfile) ·
+   **Instance type** = Free.
+4. **Environment variables**:
+   ```
+   SPRING_PROFILES_ACTIVE = docker
+   SQLSERVER_HOST         = TU-ENDPOINT.rds.amazonaws.com
+   SQLSERVER_PORT         = 1433
+   SQLSERVER_USERNAME     = adminsql
+   SQLSERVER_PASSWORD     = ********
+   JWT_SECRET             = (una cadena larga de 32+ caracteres)
+   CORS_ALLOWED_ORIGINS   = *
+   JAVA_TOOL_OPTIONS      = -Xmx300m
+   ```
+5. Create Web Service → espera el build → prueba
+   `https://TU-BACKEND.onrender.com/api/health` (debe dar 200).
+6. ⚠️ El plan free **se duerme** tras 15 min sin uso; la primera petición tarda ~1 min.
+
+### 5.3 Frontend → Vercel (gratis)
+1. Edita **`frontend/vercel.json`** y reemplaza `TU-BACKEND.onrender.com` por tu URL real
+   de Render. Commit + push. *(Ese archivo proxya `/api` al backend — sin CORS — y da el
+   fallback del router.)*
+2. Cuenta en **vercel.com** (login con GitHub) → **Add New → Project** → importa el repo.
+3. Config: **Root Directory** = `frontend` · Framework: **Vite** (auto) ·
+   Build `npm run build` · Output `dist`.
+4. **Deploy** → tu app queda en `https://TU-PROYECTO.vercel.app`.
+5. Prueba: entra y haz login con `admin` / `admin123`.
+
+### 5.4 Power BI con la BD en la nube
+Power BI Desktop → Obtener datos → SQL Server → servidor = el **endpoint de RDS**,
+base `BD_CONSOLIDADO` → publicar → pegar el link en la app (pestaña Power BI).
 
 ---
 

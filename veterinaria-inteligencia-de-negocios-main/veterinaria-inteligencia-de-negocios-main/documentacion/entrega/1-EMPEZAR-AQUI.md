@@ -5,17 +5,25 @@ levantar la aplicación y entrar.
 
 ---
 
-## ✅ Opción FÁCIL (recomendada) — un solo clic
-1. Ten abierto **Docker Desktop** y tu **SQL Server** corriendo (usuario `sa`, puerto 1433).
-2. **Doble clic en `INSTALAR.bat`** (en la carpeta del proyecto).
-   - Te pedirá la contraseña de tu SQL Server (Enter para la de por defecto).
-   - Hace TODO solo: restaura las 5 bases, configura, levanta la app y abre el navegador.
-3. Entra con **`admin` / `admin123`**.
+## ✅ Opción FÁCIL (recomendada) — solo 2 botones
 
-Para reiniciar la app después: doble clic en **`INICIAR-APP.bat`**.
-Para generar el link público: doble clic en **`PUBLICAR-LINK.bat`**.
+**Requisitos instalados** (una vez): Docker Desktop y SQL Server (usuario `sa`, puerto 1433).
+No hace falta abrir Docker: los scripts lo encienden solos.
 
-> Si el `INSTALAR.bat` funcionó, **ya terminaste** — no necesitas leer lo de abajo.
+### 🔵 Primera vez → doble clic en `INSTALAR.bat`
+- Te pedirá la contraseña de tu SQL Server (Enter para la de por defecto).
+- Hace TODO solo: enciende Docker, restaura las 5 bases, configura, levanta la app y abre el navegador.
+
+### 🟢 Cada día / después de reiniciar → doble clic en `ENCENDER.bat`
+- Enciende Docker (si está apagado) + la app + el **link público** + abre el navegador.
+- **Deja esa ventana abierta** mientras quieras que el link público funcione.
+- Es seguro darle doble clic aunque ya esté todo corriendo (no duplica nada).
+
+### Entrar
+- Local: http://localhost:5173 · Público: https://consolidado-castillon.loca.lt
+- Usuarios: `admin`/`admin123` · `user`/`admin123` · `castillonv2`/`castillon123`
+
+> Si esos 2 botones te funcionaron, **ya terminaste** — no necesitas leer lo de abajo.
 
 ---
 

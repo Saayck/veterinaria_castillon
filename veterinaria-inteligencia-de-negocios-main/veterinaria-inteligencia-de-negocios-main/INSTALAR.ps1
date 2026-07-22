@@ -23,6 +23,20 @@ if (-not $sqlcmd) {
     return
 }
 
+# Arrancar Docker Desktop solo si el daemon no responde
+docker info 2>&1 | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Iniciando Docker Desktop (espera ~1 minuto)..." -ForegroundColor Gray
+    Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+    $up = $false
+    foreach ($i in 1..30) { Start-Sleep -Seconds 5; docker info 2>&1 | Out-Null; if ($LASTEXITCODE -eq 0) { $up = $true; break } }
+    if (-not $up) {
+        Write-Host "ERROR: Docker Desktop no arranco. Abrelo manualmente y vuelve a ejecutar este instalador." -ForegroundColor Red
+        return
+    }
+    Write-Host "Docker listo." -ForegroundColor Green
+}
+
 # --- 1) Contrasena de SQL Server ---
 Write-Host "Paso 1/4 - Base de datos" -ForegroundColor Yellow
 $pass = Read-Host "  Contrasena de tu SQL Server (usuario sa) [Enter = Castillon@2025]"
