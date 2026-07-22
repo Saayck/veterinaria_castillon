@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/consolidado/**").authenticated()
                 .requestMatchers("/api/consolidado/**").hasRole("ADMIN")
                 .requestMatchers("/api/fuentes/**").hasRole("ADMIN")
+                .requestMatchers("/api/sistemas/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )

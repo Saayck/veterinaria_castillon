@@ -1,7 +1,26 @@
-# 📘 LÉEME — Sistema Consolidado (Inteligencia de Negocios)
+# 🚀 EMPEZAR AQUÍ — Sistema Consolidado (Inteligencia de Negocios)
 
 Guía para **poner el sistema a funcionar desde cero**: restaurar las bases de datos,
-levantar la aplicación y entrar. Sigue los pasos en orden.
+levantar la aplicación y entrar.
+
+---
+
+## ✅ Opción FÁCIL (recomendada) — un solo clic
+1. Ten abierto **Docker Desktop** y tu **SQL Server** corriendo (usuario `sa`, puerto 1433).
+2. **Doble clic en `INSTALAR.bat`** (en la carpeta del proyecto).
+   - Te pedirá la contraseña de tu SQL Server (Enter para la de por defecto).
+   - Hace TODO solo: restaura las 5 bases, configura, levanta la app y abre el navegador.
+3. Entra con **`admin` / `admin123`**.
+
+Para reiniciar la app después: doble clic en **`INICIAR-APP.bat`**.
+Para generar el link público: doble clic en **`PUBLICAR-LINK.bat`**.
+
+> Si el `INSTALAR.bat` funcionó, **ya terminaste** — no necesitas leer lo de abajo.
+
+---
+
+## 🛠️ Opción MANUAL (paso a paso)
+Solo si prefieres hacerlo a mano o el instalador falló.
 
 > ℹ️ Todos los comandos y rutas (`sql-init/`, `deploy/`, `.env`, `docker compose ...`) son
 > **relativos a la raíz del proyecto** (la carpeta que contiene `docker-compose.yml`).
@@ -78,13 +97,20 @@ También puedes **registrar** un usuario nuevo (rol solo lectura) desde la panta
 
 ---
 
-## 5. (Opcional) Publicar el sistema en internet — Cloudflare/túnel
-Para que otros entren por un link, ver **`DESPLIEGUE.md`**. Resumen:
+## 5. (Opcional) Publicar el sistema en internet — túnel (localtunnel)
+Para que otros entren por un link, ver **`2-PUBLICAR-EN-INTERNET.md`**. Resumen:
 ```powershell
 # deja la app corriendo (docker compose up -d) y ejecuta:
 powershell -ExecutionPolicy Bypass -File deploy\start-tunnel.ps1
 ```
-Link público: se genera un `https://...loca.lt`. La PC debe quedar encendida.
+- Link público: **https://consolidado-castillon.loca.lt** (se genera un `.loca.lt`).
+- **Primera visita:** aparece una página de aviso de localtunnel → **copia el IP** que muestra
+  (botón de copiar), pégalo y clic **Continue**. Es 1 sola vez cada 7 días por visitante.
+- La **PC debe quedar encendida** con Docker y el túnel corriendo.
+
+> Nota: el túnel gratis de **Cloudflare** (`trycloudflare.com`) NO sirve en navegador (bloquea el
+> login por el header `Origin`); por eso se usa **localtunnel**. Cloudflare sólo funciona con
+> *Named Tunnel + dominio propio* (ver `2-PUBLICAR-EN-INTERNET.md`).
 
 ---
 
