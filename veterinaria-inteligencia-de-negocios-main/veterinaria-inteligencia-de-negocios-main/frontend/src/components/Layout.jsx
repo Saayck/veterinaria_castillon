@@ -1,39 +1,64 @@
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { LogOut, Package, User } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { LogOut, Package, BarChart3 } from 'lucide-react';
 
 export default function Layout({ children }) {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
+  const navItems = isAdmin
+    ? [
+        { to: '/dashboard', label: 'Productos', icon: Package },
+        { to: '/consolidado', label: 'Consolidado', icon: BarChart3 },
+      ]
+    : [
+        { to: '/consolidado', label: 'Consolidado', icon: BarChart3 },
+        { to: '/catalog', label: 'Catálogo', icon: Package },
+      ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <span className="font-bold text-lg">Consolidado</span>
-          {isAdmin ? (
-            <button onClick={() => navigate('/dashboard')} className="text-sm text-blue-600 hover:underline">
-              <Package className="inline w-4 h-4 mr-1" />Productos
+    <div className="min-h-screen bg-slate-50">
+      <nav className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-6">
+            <button onClick={() => navigate(isAdmin ? '/dashboard' : '/consolidado')}
+              className="font-display text-lg font-bold text-slate-900">
+              Consolidado<span className="text-blue-600">.</span>
             </button>
-          ) : (
-            <button onClick={() => navigate('/catalog')} className="text-sm text-blue-600 hover:underline">
-              <Package className="inline w-4 h-4 mr-1" />Catálogo
+            <div className="hidden items-center gap-1 sm:flex">
+              {navItems.map((item) => {
+                const active = location.pathname === item.to;
+                return (
+                  <button key={item.to} onClick={() => navigate(item.to)}
+                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition ${active ? 'bg-blue-50 text-blue-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}>
+                    <item.icon className="h-4 w-4" /> {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-2 rounded-full bg-slate-100 py-1.5 pl-2 pr-3 text-sm text-slate-600">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-xs font-bold text-white">
+                {user?.username?.[0]?.toUpperCase()}
+              </span>
+              <span className="hidden font-medium sm:inline">{user?.username}</span>
+              <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${isAdmin ? 'bg-indigo-100 text-indigo-700' : 'bg-emerald-100 text-emerald-700'}`}>{user?.rol}</span>
+            </span>
+            <button onClick={handleLogout}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition hover:bg-rose-50 hover:text-rose-600">
+              <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Salir</span>
             </button>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500"><User className="inline w-4 h-4 mr-1" />{user?.username} ({user?.rol})</span>
-          <button onClick={handleLogout} className="text-sm text-red-500 hover:text-red-700">
-            <LogOut className="inline w-4 h-4" /> Salir
-          </button>
+          </div>
         </div>
       </nav>
-      <main className="p-6">{children}</main>
+      <main className="mx-auto max-w-7xl p-6">{children}</main>
     </div>
   );
 }

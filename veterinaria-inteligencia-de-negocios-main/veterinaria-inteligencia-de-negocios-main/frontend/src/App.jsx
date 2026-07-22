@@ -9,9 +9,11 @@ import Inicio from './pages/Inicio';
 import Contacto from './pages/Contacto';
 import SobreNosotros from './pages/SobreNosotros';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Catalog from './pages/Catalog';
 import CatalogMascotas from './pages/CatalogMascotas';
+import Consolidado from './pages/Consolidado';
 
 const queryClient = new QueryClient();
 
@@ -24,7 +26,7 @@ function ProtectedRoute({ children, adminOnly }) {
 
 function GuestRoute({ children }) {
   const { user, isExpired } = useAuth();
-  if (user && !isExpired) return <Navigate to={user.rol === 'ADMIN' ? '/dashboard' : '/'} replace />;
+  if (user && !isExpired) return <Navigate to={user.rol === 'ADMIN' ? '/dashboard' : '/consolidado'} replace />;
   return children;
 }
 
@@ -38,7 +40,9 @@ function AppRoutes() {
       <Route path="/catalog" element={<Catalog />} />
       <Route path="/mascotas" element={<CatalogMascotas />} />
       <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+      <Route path="/registro" element={<GuestRoute><Register /></GuestRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/consolidado" element={<ProtectedRoute><Consolidado /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
     <CartDrawer />

@@ -85,9 +85,13 @@ public class ProductoService {
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado para eliminar"));
         productoRepo.softDelete(id);
 
+        String bdDestino = producto.bdOrigen() != null ? producto.bdOrigen() : "BD_CASTILLON_VETERINARIA";
         outboxRepo.insert("PRODUCTO", id, "DELETE",
-                toJson(Map.of("idProducto", producto.idProducto())),
-                "BD_CASTILLON_VETERINARIA");
+                toJson(Map.of(
+                        "idProducto", producto.idProducto() != null ? producto.idProducto() : "",
+                        "nomProducto", producto.nomProducto() != null ? producto.nomProducto() : ""
+                )),
+                bdDestino);
         log.info("Producto id={} eliminado y mensaje outbox DELETE encolado", id);
     }
 

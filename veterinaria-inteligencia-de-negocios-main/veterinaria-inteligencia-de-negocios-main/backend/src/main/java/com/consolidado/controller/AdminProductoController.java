@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -67,37 +67,43 @@ public class AdminProductoController {
     }
 
     @PostMapping("/productos")
-    public Map<String, Object> crear(@RequestBody Map<String, Object> body) {
+    public Map<String, Object> crear(@RequestBody Map<String, Object> body, Principal principal) {
         veterinaria.update(
-            "INSERT INTO PRODUCTO (NOMPRODUCTO, DESCRIPCION, IDCATEGORIA, IDUNIDAD_MEDIDA, PRECIO_UNITARIO, STOCK_ACTUAL, ESTADO, USUCRE, PCCRE, FECCRE) VALUES (?, ?, ?, ?, ?, ?, '1', 'admin', 'PC01', GETDATE())",
-            body.get("nomProducto"),
-            body.get("descripcion"),
-            body.get("idCategoria"),
-            body.get("idUnidad"),
-            body.get("precioUnitario"),
-            body.get("stockActual")
-        );
-        return Map.of("ok", true);
-    }
-
-    @PutMapping("/productos/{id}")
-    public Map<String, Object> actualizar(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
-        veterinaria.update(
-            "UPDATE PRODUCTO SET NOMPRODUCTO=?, DESCRIPCION=?, IDCATEGORIA=?, IDUNIDAD_MEDIDA=?, PRECIO_UNITARIO=?, STOCK_ACTUAL=?, USUMOD='admin', PCMOD='PC01', FECMOD=GETDATE() WHERE IDPRODUCTO=?",
+            "INSERT INTO PRODUCTO (NOMPRODUCTO, DESCRIPCION, IDCATEGORIA, IDUNIDAD_MEDIDA, PRECIO_UNITARIO, STOCK_ACTUAL, ESTADO, USUCRE, PCCRE, FECCRE) VALUES (?, ?, ?, ?, ?, ?, '1', ?, 'PC01', GETDATE())",
             body.get("nomProducto"),
             body.get("descripcion"),
             body.get("idCategoria"),
             body.get("idUnidad"),
             body.get("precioUnitario"),
             body.get("stockActual"),
+            usuario(principal)
+        );
+        return Map.of("ok", true);
+    }
+
+    @PutMapping("/productos/{id}")
+    public Map<String, Object> actualizar(@PathVariable Integer id, @RequestBody Map<String, Object> body, Principal principal) {
+        veterinaria.update(
+            "UPDATE PRODUCTO SET NOMPRODUCTO=?, DESCRIPCION=?, IDCATEGORIA=?, IDUNIDAD_MEDIDA=?, PRECIO_UNITARIO=?, STOCK_ACTUAL=?, USUMOD=?, PCMOD='PC01', FECMOD=GETDATE() WHERE IDPRODUCTO=?",
+            body.get("nomProducto"),
+            body.get("descripcion"),
+            body.get("idCategoria"),
+            body.get("idUnidad"),
+            body.get("precioUnitario"),
+            body.get("stockActual"),
+            usuario(principal),
             id
         );
         return Map.of("ok", true);
     }
 
     @DeleteMapping("/productos/{id}")
-    public Map<String, Object> eliminar(@PathVariable Integer id) {
-        veterinaria.update("UPDATE PRODUCTO SET ESTADO='0', USUMOD='admin', PCMOD='PC01', FECMOD=GETDATE() WHERE IDPRODUCTO=?", id);
+    public Map<String, Object> eliminar(@PathVariable Integer id, Principal principal) {
+        veterinaria.update("UPDATE PRODUCTO SET ESTADO='0', USUMOD=?, PCMOD='PC01', FECMOD=GETDATE() WHERE IDPRODUCTO=?", usuario(principal), id);
         return Map.of("ok", true);
+    }
+
+    private static String usuario(Principal principal) {
+        return principal != null ? principal.getName() : "sistema";
     }
 }

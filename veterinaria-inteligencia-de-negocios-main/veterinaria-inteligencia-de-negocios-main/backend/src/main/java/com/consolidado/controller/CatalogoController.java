@@ -6,9 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/catalogo")
@@ -54,16 +56,31 @@ public class CatalogoController {
             "LEFT JOIN ESPECIE E ON R.IDESPECIE = E.IDESPECIE " +
             "LEFT JOIN PERSONA P ON M.IDPERSONA = P.IDPERSONA " +
             "WHERE M.ESTADO = '1'",
-            (rs, row) -> Map.of(
-                "idMascota", rs.getInt("IDMASCOTA"),
-                "nombre", rs.getString("NOMBRE") + " " + rs.getString("APE_PATERNO"),
-                "raza", rs.getString("RAZA") != null ? rs.getString("RAZA") : "",
-                "especie", rs.getString("ESPECIE") != null ? rs.getString("ESPECIE") : "",
-                "genero", rs.getString("GENERO") != null ? rs.getString("GENERO") : "",
-                "color", rs.getString("COLOR") != null ? rs.getString("COLOR") : "",
-                "fechNac", rs.getDate("FECHNAC") != null ? rs.getDate("FECHNAC").toString() : "",
-                "peso", rs.getBigDecimal("PESO")
-            )
+            (rs, row) -> {
+                // La tabla MASCOTA no tiene columna de nombre propio: se identifica por
+                // especie + raza. El dueño es la PERSONA vinculada (nombre completo).
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("idMascota", rs.getInt("IDMASCOTA"));
+                m.put("dueno", nombreCompleto(rs.getString("NOMBRE"),
+                        rs.getString("APE_PATERNO"), rs.getString("APE_MATERNO")));
+                m.put("raza", nvl(rs.getString("RAZA")));
+                m.put("especie", nvl(rs.getString("ESPECIE")));
+                m.put("genero", nvl(rs.getString("GENERO")));
+                m.put("color", nvl(rs.getString("COLOR")));
+                m.put("fechNac", rs.getDate("FECHNAC") != null ? rs.getDate("FECHNAC").toString() : "");
+                m.put("peso", rs.getBigDecimal("PESO"));
+                return m;
+            }
         );
+    }
+
+    private static String nvl(String value) {
+        return value != null ? value : "";
+    }
+
+    private static String nombreCompleto(String nombre, String apePaterno, String apeMaterno) {
+        return Stream.of(nombre, apePaterno, apeMaterno)
+                .filter(s -> s != null && !s.isBlank())
+                .collect(Collectors.joining(" "));
     }
 }

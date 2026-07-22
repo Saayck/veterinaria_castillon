@@ -18,15 +18,25 @@ export function AuthProvider({ children }) {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const login = useCallback(async (username, password) => {
-    const res = await api.post('/api/auth/login', { username, password });
-    const { token, rol } = res.data;
+  const persistSession = useCallback((token, username, rol) => {
     const payload = decodeToken(token);
     const userData = { token, username, rol, exp: payload?.exp };
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
     return userData;
   }, []);
+
+  const login = useCallback(async (username, password) => {
+    const res = await api.post('/api/auth/login', { username, password });
+    const { token, rol } = res.data;
+    return persistSession(token, username, rol);
+  }, [persistSession]);
+
+  const register = useCallback(async (username, password) => {
+    const res = await api.post('/api/auth/register', { username, password });
+    const { token, rol } = res.data;
+    return persistSession(token, username, rol);
+  }, [persistSession]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('user');
@@ -37,7 +47,7 @@ export function AuthProvider({ children }) {
   const isAdmin = user?.rol === 'ADMIN';
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isExpired, isAdmin }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isExpired, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

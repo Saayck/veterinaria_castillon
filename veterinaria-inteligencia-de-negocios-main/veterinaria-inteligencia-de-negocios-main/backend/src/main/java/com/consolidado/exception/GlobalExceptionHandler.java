@@ -1,8 +1,10 @@
 package com.consolidado.exception;
 
+import com.consolidado.producto.OptimisticLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,7 +16,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidation(MethodArgumentNotValidException ex) {
-        return ResponseEntity.badRequest().body(Map.of("error", "Datos inválidos", "detalles", ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage()));
+        String detalle = ex.getBindingResult().getAllErrors().stream()
+                .findFirst()
+                .map(ObjectError::getDefaultMessage)
+                .orElse("Solicitud invalida");
+        return ResponseEntity.badRequest().body(Map.of("error", "Datos inválidos", "detalles", detalle));
+    }
+
+    @ExceptionHandler(OptimisticLockException.class)
+    public ResponseEntity<?> handleOptimisticLock(OptimisticLockException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", ex.getMessage()));
     }
 
     @ExceptionHandler(AccessDeniedException.class)

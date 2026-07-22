@@ -28,25 +28,25 @@ function ProductModal({ producto, categorias, unidades, onSave, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <form onSubmit={handleSubmit} className="bg-white rounded shadow-lg p-6 w-full max-w-lg">
-        <h2 className="text-xl font-bold mb-4">{producto ? 'Editar Producto' : 'Nuevo Producto'}</h2>
+      <form onSubmit={handleSubmit} className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+        <h2 className="mb-4 font-display text-xl font-bold text-slate-800">{producto ? 'Editar Producto' : 'Nuevo Producto'}</h2>
         <div className="grid grid-cols-2 gap-3">
-          <input name="nomProducto" placeholder="Nombre" className="border p-2 rounded col-span-2" value={form.nomProducto} onChange={handleChange} required />
-          <input name="descripcion" placeholder="Descripción" className="border p-2 rounded col-span-2" value={form.descripcion} onChange={handleChange} />
-          <select name="idCategoria" className="border p-2 rounded" value={form.idCategoria} onChange={handleChange}>
+          <input name="nomProducto" placeholder="Nombre" className="input col-span-2" value={form.nomProducto} onChange={handleChange} required />
+          <input name="descripcion" placeholder="Descripción" className="input col-span-2" value={form.descripcion} onChange={handleChange} />
+          <select name="idCategoria" className="input" value={form.idCategoria} onChange={handleChange}>
             <option value="">Sin categoría</option>
             {categorias?.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
           </select>
-          <select name="idUnidad" className="border p-2 rounded" value={form.idUnidad} onChange={handleChange}>
+          <select name="idUnidad" className="input" value={form.idUnidad} onChange={handleChange}>
             <option value="">Sin unidad</option>
             {unidades?.map((u) => <option key={u.id} value={u.id}>{u.nombre}</option>)}
           </select>
-          <input name="precioUnitario" type="number" step="0.01" placeholder="Precio" className="border p-2 rounded" value={form.precioUnitario} onChange={handleChange} required />
-          <input name="stockActual" type="number" placeholder="Stock" className="border p-2 rounded" value={form.stockActual} onChange={handleChange} />
+          <input name="precioUnitario" type="number" step="0.01" placeholder="Precio" className="input" value={form.precioUnitario} onChange={handleChange} required />
+          <input name="stockActual" type="number" placeholder="Stock" className="input" value={form.stockActual} onChange={handleChange} />
         </div>
         <div className="flex justify-end gap-2 mt-4">
-          <button type="button" onClick={onClose} className="px-4 py-2 border rounded">Cancelar</button>
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Guardar</button>
+          <button type="button" onClick={onClose} className="btn-ghost">Cancelar</button>
+          <button type="submit" className="btn-primary">Guardar</button>
         </div>
       </form>
     </div>
@@ -90,7 +90,7 @@ export default function Dashboard() {
   const saveMutation = useMutation({
     mutationFn: ({ id, data }) => id ? api.put(`/api/admin/productos/${id}`, data) : api.post('/api/admin/productos', data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-productos'] });
+      queryClient.invalidateQueries({ queryKey: ['productos'] });
       setModal(null);
       toast.success('Producto guardado');
     },
@@ -100,7 +100,7 @@ export default function Dashboard() {
   const deleteMutation = useMutation({
     mutationFn: (id) => api.delete(`/api/admin/productos/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-productos'] });
+      queryClient.invalidateQueries({ queryKey: ['productos'] });
       toast.success('Producto eliminado');
     },
   });

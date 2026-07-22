@@ -1,7 +1,14 @@
-FROM node:22-alpine
+# ---------- Etapa de build (Vite) ----------
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm ci || npm install
 COPY . .
-EXPOSE 5173
-CMD ["npm", "run", "dev"]
+RUN npm run build
+
+# ---------- Etapa de runtime (nginx sirve el build estatico) ----------
+FROM nginx:1.27-alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

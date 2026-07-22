@@ -2,18 +2,13 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../services/api';
 import PublicLayout from '../components/PublicLayout';
-import { useAuth } from '../context/AuthContext';
-import { useCart } from '../context/CartContext';
-import { toast } from 'sonner';
-import { Package, Search, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
+import { Package, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 
 export default function Catalog() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('nombre');
   const [page, setPage] = useState(1);
-  const { user } = useAuth();
-  const { addToCart } = useCart();
   const itemsPerPage = 6;
 
   const { data: productos = [], isLoading, isError } = useQuery({
@@ -41,20 +36,30 @@ export default function Catalog() {
 
   return (
     <PublicLayout>
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <h1 className="text-3xl font-bold mb-8 text-center">Catálogo de Productos</h1>
-        <div className="flex flex-col md:flex-row gap-4 mb-8 max-w-2xl mx-auto">
+      {/* Encabezado */}
+      <div className="bg-gradient-to-br from-blue-700 via-indigo-700 to-purple-800 py-16 text-center text-white">
+        <div className="mx-auto max-w-3xl px-6">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium">
+            <Package className="h-3.5 w-3.5" /> Catálogo
+          </span>
+          <h1 className="mt-4 font-display text-4xl font-extrabold md:text-5xl">Catálogo de Productos</h1>
+          <p className="mt-3 text-blue-100">Explora nuestra variedad de productos consolidados</p>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <div className="mx-auto mb-10 flex max-w-2xl flex-col gap-3 md:flex-row">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
             <input
-              className="w-full border pl-10 p-3 rounded"
+              className="input pl-11 py-3"
               placeholder="Buscar productos..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             />
           </div>
-          <select 
-            className="border p-3 rounded bg-white"
+          <select
+            className="input bg-white py-3 md:w-56"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >

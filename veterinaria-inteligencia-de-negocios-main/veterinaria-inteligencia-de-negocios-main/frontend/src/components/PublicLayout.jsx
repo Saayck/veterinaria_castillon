@@ -87,7 +87,7 @@ export default function PublicLayout({ children }) {
               </Link>
             )}
             
-            {(!user || user.rol === 'USER') && (
+            {user?.rol === 'USER' && (
               <button onClick={toggleCart} className="relative p-2 text-gray-600 hover:text-blue-600 transition ml-2">
                 <ShoppingCart className="w-5 h-5" />
                 {totalItems > 0 && (

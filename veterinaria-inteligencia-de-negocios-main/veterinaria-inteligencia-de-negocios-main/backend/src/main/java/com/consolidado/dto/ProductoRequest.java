@@ -11,6 +11,7 @@ public record ProductoRequest(
         String categoria,
         @Min(value = 0, message = "El precio debe ser positivo") BigDecimal precioUnitario,
         String costoUnitario,
-        String stockActual,
+        Integer stockActual,
+        String marca,
         String bdOrigen
 ) {}
