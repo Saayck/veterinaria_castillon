@@ -23,3 +23,9 @@ logs/
 
 # Docker
 docker-compose.override.yml
+
+# Backups SQL (van en el .rar, no en git)
+sql-init/backups/*.bak
+
+# Entregable de BD (va en el .rar, no en git)
+BASE_DE_DATOS.zip

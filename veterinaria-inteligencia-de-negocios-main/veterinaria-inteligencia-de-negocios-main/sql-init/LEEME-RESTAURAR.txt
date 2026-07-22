@@ -1,0 +1,48 @@
+============================================================
+ BASE DE DATOS — Sistema Consolidado (5 bases)
+ Cómo restaurar todo en SQL Server
+============================================================
+
+Contenido:
+  - 00-crear-databases.sql        (crea las 3 bases vacías)
+  - BD_CASTILLON_VETERINARIA.sql  (dump veterinaria)
+  - CASTILLONV2.sql               (dump comercial)
+  - BD_CONSOLIDADO.sql            (dump base central)
+  - migracion-dump.sql            (agrega VERSION/OUTBOX/USUARIO/CONFIGURACION)
+  - backups\SamarImportadora.bak      (base OLTP Samar)
+  - backups\DW_SamarImportadora.bak   (Data Warehouse Samar)
+  - setup-db.ps1                  (restaura TODO de un solo comando)
+
+------------------------------------------------------------
+ OPCIÓN A (recomendada): un solo comando
+------------------------------------------------------------
+Requisitos: SQL Server corriendo + sqlcmd instalado.
+
+1) Abre PowerShell dentro de esta carpeta.
+2) Ejecuta (cambia el Password por el de tu 'sa'):
+
+   .\setup-db.ps1 -Server "localhost,1433" -User sa -Password "TuPassword"
+
+Eso crea las 3 bases de los .sql, restaura las 2 de los .bak y aplica la
+migración. Es idempotente (si una base ya existe, la omite). Para recargar
+desde cero: agrega  -Fresh  al final.
+
+------------------------------------------------------------
+ OPCIÓN B: manual (SSMS)
+------------------------------------------------------------
+1) Ejecuta en orden estos scripts en SSMS:
+     00-crear-databases.sql
+     BD_CASTILLON_VETERINARIA.sql
+     CASTILLONV2.sql
+     BD_CONSOLIDADO.sql
+     migracion-dump.sql
+2) Restaura los 2 backups (clic derecho en "Bases de datos" > Restaurar):
+     backups\SamarImportadora.bak       -> base "SamarImportadora"
+     backups\DW_SamarImportadora.bak    -> base "DW_SamarImportadora"
+
+------------------------------------------------------------
+ Usuarios de la app (tabla USUARIO en BD_CONSOLIDADO)
+------------------------------------------------------------
+   admin / admin123   (rol ADMIN)
+   user  / admin123   (rol USER, solo lectura)
+============================================================

@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, Package, BarChart3 } from 'lucide-react';
+import { LogOut, Package, BarChart3, Users } from 'lucide-react';
 
 export default function Layout({ children }) {
   const { user, logout, isAdmin } = useAuth();
@@ -15,6 +15,7 @@ export default function Layout({ children }) {
   const navItems = isAdmin
     ? [
         { to: '/dashboard', label: 'Productos', icon: Package },
+        { to: '/clientes', label: 'Clientes', icon: Users },
         { to: '/consolidado', label: 'Consolidado', icon: BarChart3 },
       ]
     : [

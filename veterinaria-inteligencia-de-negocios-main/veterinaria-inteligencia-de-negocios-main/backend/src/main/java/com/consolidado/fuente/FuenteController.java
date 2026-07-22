@@ -34,9 +34,19 @@ public class FuenteController {
         return veterinaria.listarProductos();
     }
 
+    @GetMapping("/veterinaria/clientes")
+    public List<FuenteCliente> veterinariaClientes() {
+        return veterinaria.listarClientes();
+    }
+
     @GetMapping("/castillonv2/productos")
     public List<FuenteProducto> castillonv2Productos() {
         return castillonv2.listarProductos();
+    }
+
+    @GetMapping("/castillonv2/clientes")
+    public List<FuenteCliente> castillonv2Clientes() {
+        return castillonv2.listarClientes();
     }
 
     @GetMapping("/samar/productos")

@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Database } from 'lucide-react';
 
 
 function ProductModal({ producto, categorias, unidades, onSave, onClose }) {
@@ -53,16 +53,32 @@ function ProductModal({ producto, categorias, unidades, onSave, onClose }) {
   );
 }
 
+const SISTEMAS = [
+  { id: 'veterinaria', label: 'Veterinaria Castillón', bd: 'BD_CASTILLON_VETERINARIA' },
+  { id: 'castillonv2', label: 'Castillón V2', bd: 'CASTILLONV2' },
+];
+
 export default function Dashboard() {
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [modal, setModal] = useState(null);
+  const [sistema, setSistema] = useState('veterinaria');
   const container = useRef(null);
+  const isVet = sistema === 'veterinaria';
 
-  const { data: productos = [], isLoading } = useQuery({
-    queryKey: ['productos', isAdmin],
-    queryFn: () => api.get(isAdmin ? '/api/admin/productos' : '/api/catalogo/productos').then((r) => r.data),
+  // Cada sistema está conectado a su propia BD. Veterinaria tiene CRUD; CastillonV2 es solo lectura.
+  const { data: productosRaw = [], isLoading } = useQuery({
+    queryKey: ['productos', isAdmin, sistema],
+    queryFn: () => {
+      if (!isAdmin) return api.get('/api/catalogo/productos').then((r) => r.data);
+      const url = isVet ? '/api/admin/productos' : '/api/fuentes/castillonv2/productos';
+      return api.get(url).then((r) => r.data);
+    },
   });
+
+  const productos = productosRaw.map((p) => isVet
+    ? { id: p.idProducto, nombre: p.nomProducto, categoria: p.categoria, unidad: p.unidad, precio: p.precioUnitario, stock: p.stockActual, estado: p.estado, raw: p }
+    : { id: p.idOrigen, nombre: p.nombre, categoria: p.categoria, unidad: null, precio: p.precio, stock: p.stock, estado: '1', raw: p });
 
   useGSAP(() => {
     if (productos.length > 0 && !isLoading) {
@@ -108,14 +124,38 @@ export default function Dashboard() {
   return (
     <Layout>
       <div ref={container}>
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="dashboard-title text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-600">Gestión de Productos</h1>
-          {isAdmin && (
-            <button onClick={() => setModal({})} className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all flex items-center gap-2 font-medium">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+          <div>
+            <h1 className="dashboard-title font-display text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-600">Gestión de Productos</h1>
+            {isAdmin && (
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
+                <Database className="h-4 w-4" /> Sistema conectado a
+                <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${isVet ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                  {SISTEMAS.find((s) => s.id === sistema)?.bd}
+                </span>
+              </p>
+            )}
+          </div>
+          {isAdmin && isVet && (
+            <button onClick={() => setModal({})} className="btn-primary">
               <Plus className="w-5 h-5" /> Nuevo Producto
             </button>
           )}
         </div>
+
+        {isAdmin && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {SISTEMAS.map((s) => (
+              <button key={s.id} onClick={() => setSistema(s.id)}
+                className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${sistema === s.id ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'}`}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
+        {isAdmin && !isVet && (
+          <p className="mb-3 text-xs text-amber-600">CastillónV2 es un sistema de solo lectura (sin edición de productos).</p>
+        )}
 
       {modal && (
         <ProductModal
@@ -148,17 +188,17 @@ export default function Dashboard() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {productos.map((p) => (
-                <tr key={p.idProducto} className="table-row hover:bg-blue-50/50 transition-colors">
-                  <td className="p-4 text-gray-500 font-mono text-xs">{p.idProducto}</td>
-                  <td className="p-4 font-semibold text-gray-800">{p.nomProducto}</td>
+                <tr key={p.id} className="table-row hover:bg-blue-50/50 transition-colors">
+                  <td className="p-4 text-gray-500 font-mono text-xs">{p.id}</td>
+                  <td className="p-4 font-semibold text-gray-800">{p.nombre}</td>
                   <td className="p-4">
                     <span className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full text-xs font-medium">{p.categoria || 'Sin categoría'}</span>
                   </td>
                   <td className="p-4 text-gray-600">{p.unidad || '-'}</td>
-                  <td className="p-4 text-right font-bold text-gray-900">S/{p.precioUnitario?.toFixed(2)}</td>
+                  <td className="p-4 text-right font-bold text-gray-900">S/{Number(p.precio ?? 0).toFixed(2)}</td>
                   <td className="p-4 text-right">
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${p.stockActual > 10 ? 'text-green-700 bg-green-100' : p.stockActual > 0 ? 'text-orange-700 bg-orange-100' : 'text-red-700 bg-red-100'}`}>
-                      {p.stockActual ?? 0}
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${p.stock > 10 ? 'text-green-700 bg-green-100' : p.stock > 0 ? 'text-orange-700 bg-orange-100' : 'text-red-700 bg-red-100'}`}>
+                      {p.stock ?? '—'}
                     </span>
                   </td>
                   {isAdmin && (
@@ -170,12 +210,18 @@ export default function Dashboard() {
                   )}
                   {isAdmin && (
                     <td className="p-4 text-center">
-                      <button onClick={() => setModal({ ...p, id: p.idProducto })} className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors mr-1">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => { if (confirm('¿Eliminar?')) deleteMutation.mutate(p.idProducto); }} className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {isVet ? (
+                        <>
+                          <button onClick={() => setModal({ ...p.raw, id: p.id })} className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors mr-1">
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => { if (confirm('¿Eliminar?')) deleteMutation.mutate(p.id); }} className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-xs text-gray-400">solo lectura</span>
+                      )}
                     </td>
                   )}
                 </tr>

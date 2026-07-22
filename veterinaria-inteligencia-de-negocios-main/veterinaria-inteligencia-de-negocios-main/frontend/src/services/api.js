@@ -1,8 +1,15 @@
 import axios from 'axios';
 
+// En despliegue partido (frontend en Pages + backend en otra URL) se define VITE_API_URL.
+// Local/Docker: vacío → llamadas relativas /api que nginx reenvía al backend.
 const api = axios.create({
-  baseURL: '',
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: import.meta.env.VITE_API_URL || '',
+  headers: {
+    'Content-Type': 'application/json',
+    // Salta las páginas de aviso de túneles gratuitos (localtunnel / ngrok) en las llamadas XHR.
+    'bypass-tunnel-reminder': 'true',
+    'ngrok-skip-browser-warning': 'true',
+  },
 });
 
 api.interceptors.request.use((config) => {

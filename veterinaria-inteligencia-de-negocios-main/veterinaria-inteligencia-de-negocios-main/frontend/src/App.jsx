@@ -14,6 +14,7 @@ import Dashboard from './pages/Dashboard';
 import Catalog from './pages/Catalog';
 import CatalogMascotas from './pages/CatalogMascotas';
 import Consolidado from './pages/Consolidado';
+import Clientes from './pages/Clientes';
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ function AppRoutes() {
       <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
       <Route path="/registro" element={<GuestRoute><Register /></GuestRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/clientes" element={<ProtectedRoute adminOnly><Clientes /></ProtectedRoute>} />
       <Route path="/consolidado" element={<ProtectedRoute><Consolidado /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
