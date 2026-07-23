@@ -17,7 +17,7 @@ export default function Login() {
     try {
       const user = await login(username, password);
       toast.success(`Bienvenido, ${user.username}`);
-      navigate('/');
+      navigate('/portal');
     } catch {
       toast.error('Credenciales inválidas');
     } finally {

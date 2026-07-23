@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 import Layout from '../components/Layout';
 import { toast } from 'sonner';
-import { Package, Users, Plus, Pencil, Trash2, Search, Database } from 'lucide-react';
+import { Package, Users, Plus, Pencil, Trash2, Search, Database, BarChart3, ExternalLink } from 'lucide-react';
 
 const BASE = '/api/sistemas/castillonv2';
 
@@ -173,6 +173,81 @@ function TabClientes() {
   );
 }
 
+// ---------------- Power BI (link propio del sistema V2) ----------------
+function TabPowerBi() {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ['v2-powerbi'],
+    queryFn: () => api.get(`${BASE}/powerbi`).then((r) => r.data),
+  });
+  const url = data?.url || '';
+  const [input, setInput] = useState('');
+
+  const guardar = useMutation({
+    mutationFn: (nuevaUrl) => api.put(`${BASE}/powerbi`, { url: nuevaUrl }).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['v2-powerbi'] });
+      toast.success('Enlace de Power BI guardado');
+    },
+    onError: () => toast.error('No se pudo guardar el enlace'),
+  });
+
+  if (isLoading) return <Spin />;
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+        <p className="mb-2 block text-sm font-medium text-slate-700">
+          Enlace del reporte de Power BI del sistema Castillón V2 (un solo link)
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <input
+            type="url"
+            value={input || url}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="https://app.powerbi.com/view?r=..."
+            className="input flex-1"
+          />
+          <button
+            onClick={() => guardar.mutate(input || url)}
+            disabled={guardar.isPending}
+            className="btn-primary disabled:opacity-60"
+          >
+            {guardar.isPending ? 'Guardando…' : 'Guardar'}
+          </button>
+          {url && (
+            <button onClick={() => { setInput(''); guardar.mutate(''); }} className="btn-ghost">
+              Quitar
+            </button>
+          )}
+        </div>
+        <p className="mt-2 text-xs text-slate-400">
+          En Power BI Service: “Archivo → Insertar informe → Publicar en la web (público)”, y pega aquí la URL.
+        </p>
+      </div>
+
+      {url ? (
+        <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+          <div className="flex items-center justify-between p-3">
+            <h3 className="flex items-center gap-2 font-semibold text-slate-800">
+              <BarChart3 className="h-4 w-4 text-emerald-600" /> Dashboard Castillón V2
+            </h3>
+            <a href={url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-sm text-emerald-600 hover:underline">
+              Abrir en Power BI <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+          <iframe title="Power BI Castillón V2" src={url} className="h-[600px] w-full border-t border-slate-100" allowFullScreen />
+        </div>
+      ) : (
+        <div className="py-10 text-center text-slate-400">
+          <p className="font-medium text-slate-600">Aún no hay un enlace de Power BI configurado.</p>
+          <p className="mx-auto mt-2 max-w-md text-xs">Pega arriba la URL del reporte publicado y presiona Guardar.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Spin() {
   return <div className="flex justify-center py-16"><div className="h-10 w-10 animate-spin rounded-full border-b-2 border-emerald-600" /></div>;
 }
@@ -182,6 +257,7 @@ export default function CastillonV2Portal() {
   const tabs = [
     { id: 'productos', label: 'Productos', icon: Package },
     { id: 'clientes', label: 'Clientes', icon: Users },
+    { id: 'powerbi', label: 'Power BI', icon: BarChart3 },
   ];
   return (
     <Layout>
@@ -199,7 +275,9 @@ export default function CastillonV2Portal() {
           </button>
         ))}
       </div>
-      {tab === 'productos' ? <TabProductos /> : <TabClientes />}
+      {tab === 'productos' && <TabProductos />}
+      {tab === 'clientes' && <TabClientes />}
+      {tab === 'powerbi' && <TabPowerBi />}
     </Layout>
   );
 }

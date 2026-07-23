@@ -17,9 +17,12 @@ import java.util.stream.Stream;
 public class CatalogoController {
 
     private final JdbcTemplate veterinaria;
+    private final JdbcTemplate castillonv2;
 
-    public CatalogoController(@Qualifier("veterinariaJdbcTemplate") JdbcTemplate veterinaria) {
+    public CatalogoController(@Qualifier("veterinariaJdbcTemplate") JdbcTemplate veterinaria,
+                              @Qualifier("castillonv2JdbcTemplate") JdbcTemplate castillonv2) {
         this.veterinaria = veterinaria;
+        this.castillonv2 = castillonv2;
     }
 
     @GetMapping("/productos")
@@ -41,6 +44,26 @@ public class CatalogoController {
                 "unidad", rs.getString("UNIDAD") != null ? rs.getString("UNIDAD") : "",
                 "precioUnitario", rs.getBigDecimal("PRECIO_UNITARIO"),
                 "stockActual", rs.getInt("STOCK_ACTUAL")
+            )
+        );
+    }
+
+    /** Catálogo público del sistema Castillón V2 (para la portada de su plataforma). */
+    @GetMapping("/castillonv2/productos")
+    public List<Map<String, Object>> listarProductosCastillonV2() {
+        return castillonv2.query(
+            "SELECT P.IDPRODUCTO, P.NOMPRODUCTO, P.DESCRIPCION, " +
+            "C.NOMCATEGORIA AS CATEGORIA, P.PRECIO, P.MARCA " +
+            "FROM PRODUCTO P " +
+            "LEFT JOIN CATEGORIA C ON P.IDCATEGORIA = C.IDCATEGORIA " +
+            "WHERE P.ESTADO = '1'",
+            (rs, row) -> Map.of(
+                "idProducto", rs.getInt("IDPRODUCTO"),
+                "nomProducto", rs.getString("NOMPRODUCTO"),
+                "descripcion", nvl(rs.getString("DESCRIPCION")),
+                "categoria", nvl(rs.getString("CATEGORIA")),
+                "marca", nvl(rs.getString("MARCA")),
+                "precio", rs.getBigDecimal("PRECIO")
             )
         );
     }

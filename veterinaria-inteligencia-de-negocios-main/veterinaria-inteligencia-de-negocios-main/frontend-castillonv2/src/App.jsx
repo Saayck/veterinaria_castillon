@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Toaster } from 'sonner';
 import Login from './pages/Login';
+import Inicio from './pages/Inicio';
 import CastillonV2Portal from './pages/CastillonV2Portal';
 
 // ============================================================
@@ -36,7 +37,7 @@ function ProtectedRoute({ children }) {
 
 function GuestRoute({ children }) {
   const { user, isExpired } = useAuth();
-  if (user && !isExpired) return <Navigate to="/" replace />;
+  if (user && !isExpired) return <Navigate to="/portal" replace />;
   return children;
 }
 
@@ -46,8 +47,9 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Inicio />} />
             <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
-            <Route path="/" element={<ProtectedRoute><CastillonV2Portal /></ProtectedRoute>} />
+            <Route path="/portal" element={<ProtectedRoute><CastillonV2Portal /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Toaster position="top-right" richColors />
