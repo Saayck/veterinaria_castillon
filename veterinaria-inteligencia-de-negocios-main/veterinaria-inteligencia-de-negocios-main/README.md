@@ -18,6 +18,15 @@ Solo necesitas tener instalados: **Docker Desktop** y **SQL Server** (usuario `s
 
 Luego entra con **`admin` / `admin123`**. Eso es todo. *(Si prefieres hacerlo a mano, ver la guía 1️⃣ abajo.)*
 
+## 🖥️ Los 2 softwares (con sus links)
+
+| Software | Local | Link público | Ingresa con |
+|---|---|---|---|
+| **1. Sistema Consolidado / Veterinaria** | http://localhost:5173 | https://consolidado-castillon.loca.lt | `admin` / `admin123` (o `user`) |
+| **2. Sistema Castillón V2** (frontend propio, conectado a la BD `CASTILLONV2`) | http://localhost:5174 | https://castillonv2-castillon.loca.lt | `castillonv2` / `castillon123` |
+
+Ambos consumen el **mismo backend** (puerto 8080), pero cada sistema opera sobre **su propia base de datos**.
+
 ---
 
 ## 📚 Documentación — ¿qué leer?
@@ -49,7 +58,8 @@ cp .env.example .env        # define SQLSERVER_PASSWORD y JWT_SECRET
 docker compose up -d --build
 ```
 
-- Frontend: `http://localhost:5173`
+- Frontend Consolidado: `http://localhost:5173`
+- Frontend Castillón V2: `http://localhost:5174`
 - Backend:  `http://localhost:8080/api/health`
 
 ## 👤 Usuarios
@@ -59,13 +69,14 @@ docker compose up -d --build
 | ---------------------- | ------- | ----------- | ------ |
 | Admin                  | `admin` | `admin123`  | Todo (2 sistemas + Consolidado + Power BI) |
 | Usuario (solo lectura) | `user`  | `admin123`  | Consola consolidada (solo lectura) |
-| Operador CastillónV2   | `castillonv2` | `castillon123` | **Solo** el sistema CastillónV2 (CRUD productos/clientes) |
+| Operador CastillónV2   | `castillonv2` | `castillon123` | **Solo** el sistema CastillónV2 (su propio frontend, puerto 5174) |
 
 ## 🗂️ Estructura
 
 ```
-├─ backend/          Spring Boot (Java 21, JDBC, JWT)
-├─ frontend/         React + Vite + Tailwind
+├─ backend/               Spring Boot (Java 21, JDBC, JWT) — sirve a los 2 frontends
+├─ frontend/              React + Vite + Tailwind (Sistema 1: Consolidado/Veterinaria)
+├─ frontend-castillonv2/  React + Vite + Tailwind (Sistema 2: portal exclusivo Castillón V2)
 ├─ sql-init/         Scripts y backups de las 5 bases + setup-db.ps1
 ├─ deploy/           Scripts del túnel público (Cloudflare/localtunnel)
 ├─ documentacion/    Guías (entrega, técnico)

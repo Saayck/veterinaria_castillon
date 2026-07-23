@@ -11,9 +11,15 @@
 $sub = "consolidado-castillon"
 $port = 5173
 
-# Evitar tuneles duplicados (dos instancias del mismo subdominio provocan error 503)
+# Lanzar tambien el tunel del 2do frontend (Castillon V2) en segundo plano
+$v2script = Join-Path $PSScriptRoot "start-tunnel-v2.ps1"
+if (Test-Path $v2script) {
+    Start-Process powershell.exe -ArgumentList "-WindowStyle","Hidden","-ExecutionPolicy","Bypass","-File",$v2script -WindowStyle Hidden
+}
+
+# Evitar tuneles duplicados DE ESTE subdominio (dos instancias iguales provocan error 503)
 $existente = Get-CimInstance Win32_Process -Filter "name='node.exe'" -ErrorAction SilentlyContinue |
-             Where-Object { $_.CommandLine -like "*localtunnel*" }
+             Where-Object { $_.CommandLine -like "*$sub*" }
 if ($existente) {
     Write-Host "El tunel YA esta corriendo. Link: https://$sub.loca.lt" -ForegroundColor Green
     Write-Host "(No se inicia otro para no duplicar. Cierra el otro proceso si quieres reiniciarlo.)"

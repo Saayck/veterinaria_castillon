@@ -49,6 +49,22 @@ services:
     networks:
       - consolidado-net
 
+  # =====================================================
+  # Frontend EXCLUSIVO Castillon V2 (2do software; mismo backend)
+  # =====================================================
+  frontend-castillonv2:
+    build:
+      context: ./frontend-castillonv2
+      dockerfile: Dockerfile
+    container_name: castillonv2-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5174:80"
+    networks:
+      - consolidado-net
+
 networks:
   consolidado-net:
     driver: bridge

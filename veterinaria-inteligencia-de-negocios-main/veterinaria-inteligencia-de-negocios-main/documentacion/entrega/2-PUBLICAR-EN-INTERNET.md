@@ -71,7 +71,9 @@ No depende de tu equipo, pero requiere más configuración. Ver §5.
 
 ## 4. Estrategia A — localtunnel (gratis, sin dominio, sin registro)
 
-**URL pública ya configurada:** `https://consolidado-castillon.loca.lt`
+**URLs públicas ya configuradas (2 softwares):**
+- Sistema 1 (Consolidado/Veterinaria): `https://consolidado-castillon.loca.lt` → localhost:5173
+- Sistema 2 (Castillón V2): `https://castillonv2-castillon.loca.lt` → localhost:5174
 
 1. Base de datos + app en Docker (una vez):
    ```powershell
@@ -88,7 +90,9 @@ No depende de tu equipo, pero requiere más configuración. Ver §5.
    ```powershell
    powershell -ExecutionPolicy Bypass -File deploy\start-tunnel.ps1
    ```
-   Deja esa ventana abierta. URL: **https://consolidado-castillon.loca.lt**
+   Deja esa ventana abierta. El script levanta **los 2 túneles** (el del Sistema Castillón V2
+   se lanza solo en segundo plano). URLs: **https://consolidado-castillon.loca.lt** y
+   **https://castillonv2-castillon.loca.lt**
 
 3. Para que sobreviva **reinicios** de la PC (dure la semana), instala la tarea programada
    **como Administrador** (una vez):
@@ -101,6 +105,8 @@ No depende de tu equipo, pero requiere más configuración. Ver §5.
 2. La **primera vez** aparece un aviso de localtunnel: **copia el IP** que muestra (hay botón
    de copiar), pégalo en la caja y clic **Continue**. Es **1 sola vez cada 7 días** por visitante.
 3. Ya carga la app → inicia sesión con `admin` / `admin123`.
+4. El 2do software (**https://castillonv2-castillon.loca.lt**) funciona igual:
+   mismo aviso la primera vez, y se entra con `castillonv2` / `castillon123`.
 
 ### 4.1 Opción Cloudflare con URL fija (si tienes dominio)
 Un *Named Tunnel* de Cloudflare sí funciona en navegador y da URL fija, pero **requiere un

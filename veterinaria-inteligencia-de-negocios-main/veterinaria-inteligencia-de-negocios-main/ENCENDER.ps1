@@ -39,8 +39,10 @@ if ($ok) { Start-Process "http://localhost:5173" } else { Write-Host "La app tar
 # --- 4) Link público (túnel) ---
 Write-Host "4/4 Link publico..." -ForegroundColor Yellow
 Write-Host ""
-Write-Host "  App local:    http://localhost:5173" -ForegroundColor Green
-Write-Host "  Link publico: https://consolidado-castillon.loca.lt" -ForegroundColor Green
+Write-Host "  Sistema 1 (Veterinaria/Consolidado):" -ForegroundColor Green
+Write-Host "    local http://localhost:5173  |  publico https://consolidado-castillon.loca.lt" -ForegroundColor Green
+Write-Host "  Sistema 2 (Castillon V2):" -ForegroundColor Green
+Write-Host "    local http://localhost:5174  |  publico https://castillonv2-castillon.loca.lt" -ForegroundColor Green
 Write-Host "  Usuarios: admin/admin123 | user/admin123 | castillonv2/castillon123" -ForegroundColor Green
 Write-Host ""
 Write-Host "  (Deja esta ventana ABIERTA para mantener el link publico)" -ForegroundColor Yellow

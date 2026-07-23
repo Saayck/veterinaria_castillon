@@ -19,9 +19,11 @@ No hace falta abrir Docker: los scripts lo encienden solos.
 - **Deja esa ventana abierta** mientras quieras que el link público funcione.
 - Es seguro darle doble clic aunque ya esté todo corriendo (no duplica nada).
 
-### Entrar
-- Local: http://localhost:5173 · Público: https://consolidado-castillon.loca.lt
-- Usuarios: `admin`/`admin123` · `user`/`admin123` · `castillonv2`/`castillon123`
+### Entrar (2 softwares)
+| Software | Local | Público | Usuario |
+|---|---|---|---|
+| **Sistema Consolidado / Veterinaria** | http://localhost:5173 | https://consolidado-castillon.loca.lt | `admin`/`admin123` o `user`/`admin123` |
+| **Sistema Castillón V2** (frontend propio) | http://localhost:5174 | https://castillonv2-castillon.loca.lt | `castillonv2`/`castillon123` |
 
 > Si esos 2 botones te funcionaron, **ya terminaste** — no necesitas leer lo de abajo.
 
@@ -72,8 +74,9 @@ Desde la carpeta del proyecto:
    docker compose up -d --build
    ```
 3. Verifica:
-   - App:      http://localhost:5173
-   - Backend:  http://localhost:8080/api/health
+   - App 1 (Consolidado):   http://localhost:5173
+   - App 2 (Castillón V2):  http://localhost:5174
+   - Backend:               http://localhost:8080/api/health
 
 *(Sin Docker: `cd backend` y `mvn clean package -DskipTests`, luego
 `java -jar target/consolidado-backend-0.0.1-SNAPSHOT.jar`; y `cd frontend` + `npm install` + `npm run dev`.)*
@@ -87,9 +90,13 @@ Abre **http://localhost:5173** → "Iniciar Sesión".
 |-----|---------|-----------|-----------------|
 | **Admin** | `admin` | `admin123` | Todo: Productos (CRUD), Clientes, Consolidado, ETL, Power BI |
 | **Usuario** | `user` | `admin123` | Solo lectura de la consola consolidada |
-| **Operador CastillónV2** | `castillonv2` | `castillon123` | **Solo** el sistema CastillónV2 (CRUD de sus productos y clientes) |
+| **Operador CastillónV2** | `castillonv2` | `castillon123` | **Solo** el sistema CastillónV2 — entra por **su propio frontend** en http://localhost:5174 |
 
 También puedes **registrar** un usuario nuevo (rol solo lectura) desde la pantalla de registro.
+
+> 🖥️ **Castillón V2 tiene su propio software** (carpeta `frontend-castillonv2/`, puerto **5174**):
+> mismo backend, pero conectado exclusivamente a la BD `CASTILLONV2`. Un usuario normal que
+> intente entrar ahí verá "Sin acceso a este sistema".
 
 ### Qué hay dentro
 - **Productos** y **Clientes**: cada uno con selector de **2 sistemas** (Veterinaria y CastillónV2),
@@ -112,7 +119,9 @@ Para que otros entren por un link, ver **`2-PUBLICAR-EN-INTERNET.md`**. Resumen:
 # deja la app corriendo (docker compose up -d) y ejecuta:
 powershell -ExecutionPolicy Bypass -File deploy\start-tunnel.ps1
 ```
-- Link público: **https://consolidado-castillon.loca.lt** (se genera un `.loca.lt`).
+- Links públicos (el script levanta **los 2 túneles** solo):
+  - Sistema 1: **https://consolidado-castillon.loca.lt**
+  - Sistema 2 (Castillón V2): **https://castillonv2-castillon.loca.lt**
 - **Primera visita:** aparece una página de aviso de localtunnel → **copia el IP** que muestra
   (botón de copiar), pégalo y clic **Continue**. Es 1 sola vez cada 7 días por visitante.
 - La **PC debe quedar encendida** con Docker y el túnel corriendo.
@@ -128,4 +137,5 @@ powershell -ExecutionPolicy Bypass -File deploy\start-tunnel.ps1
 1) Descomprimir BASE_DE_DATOS.zip -> .\setup-db.ps1 -Server "localhost,1433" -User sa -Password "..."
 2) Crear .env  ->  docker compose up -d --build
 3) Abrir http://localhost:5173  ->  admin / admin123
+   (2do software: http://localhost:5174  ->  castillonv2 / castillon123)
 ```
