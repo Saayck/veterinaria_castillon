@@ -41,13 +41,21 @@ function GuestRoute({ children }) {
   return children;
 }
 
+// "/" se comporta COMO ANTES para quien ya inició sesión (portal directo con
+// Productos/Clientes/Power BI) y muestra la portada pública solo a visitantes.
+function HomeRoute() {
+  const { user, isExpired } = useAuth();
+  const autorizado = user && !isExpired && (user.rol === 'CASTILLONV2' || user.rol === 'ADMIN');
+  return autorizado ? <CastillonV2Portal /> : <Inicio />;
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Inicio />} />
+            <Route path="/" element={<HomeRoute />} />
             <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
             <Route path="/portal" element={<ProtectedRoute><CastillonV2Portal /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
