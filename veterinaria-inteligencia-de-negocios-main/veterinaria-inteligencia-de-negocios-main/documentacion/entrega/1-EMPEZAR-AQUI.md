@@ -114,17 +114,23 @@ También puedes **registrar** un usuario nuevo (rol solo lectura) desde la panta
 ---
 
 ## 5. (Opcional) Publicar el sistema en internet — túnel (localtunnel)
-Para que otros entren por un link, ver **`2-PUBLICAR-EN-INTERNET.md`**. Resumen:
+Para que otros entren por un link desde su casa, deja la app corriendo (`docker compose up -d`)
+y ejecuta **UNA sola vez** (o simplemente usa `ENCENDER.bat`, que ya lo hace):
 ```powershell
-# deja la app corriendo (docker compose up -d) y ejecuta:
 powershell -ExecutionPolicy Bypass -File deploy\start-tunnel.ps1
 ```
-- Links públicos (el script levanta **los 2 túneles** solo):
+- Levanta **los 2 túneles** con un **watchdog** que los vigila y **reinicia solo** el que se caiga:
   - Sistema 1: **https://consolidado-castillon.loca.lt**
   - Sistema 2 (Castillón V2): **https://castillonv2-castillon.loca.lt**
+- **Deja esa ventana ABIERTA.** Si la cierras, se cortan los links.
 - **Primera visita:** aparece una página de aviso de localtunnel → **copia el IP** que muestra
-  (botón de copiar), pégalo y clic **Continue**. Es 1 sola vez cada 7 días por visitante.
-- La **PC debe quedar encendida** con Docker y el túnel corriendo.
+  (botón de copiar), pégalo y clic **Continue**. Es 1 sola vez cada 7 días **por cada link** y por visitante.
+- La **PC debe quedar encendida** con Docker y esa ventana abierta.
+
+> ⚠️ **Si un link da error 503 / "no disponible":** NO abras otra ventana del túnel (duplicar
+> procesos empeora el 503). El watchdog lo reintenta solo cada ~12s; espera ~1 min y recarga.
+> Si sigue caído: cierra la ventana del túnel y vuelve a doble-clic en **`ENCENDER.bat`**.
+> El script mata los procesos viejos antes de relanzar, así que reclama el subdominio limpio.
 
 > Nota: el túnel gratis de **Cloudflare** (`trycloudflare.com`) NO sirve en navegador (bloquea el
 > login por el header `Origin`); por eso se usa **localtunnel**. Cloudflare sólo funciona con

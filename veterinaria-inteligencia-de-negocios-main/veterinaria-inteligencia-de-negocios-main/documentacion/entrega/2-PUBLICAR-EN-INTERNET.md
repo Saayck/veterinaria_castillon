@@ -86,19 +86,33 @@ No depende de tu equipo, pero requiere más configuración. Ver §5.
    El backend ya acepta cualquier origen (CORS `*`) y el frontend manda el header
    `bypass-tunnel-reminder` para saltar el aviso de localtunnel en las llamadas a la API.
 
-2. Levanta el túnel (subdominio fijo, se auto-reinicia si se cae):
+2. Levanta los túneles con el **watchdog** (una sola ventana gestiona los 2):
    ```powershell
    powershell -ExecutionPolicy Bypass -File deploy\start-tunnel.ps1
    ```
-   Deja esa ventana abierta. El script levanta **los 2 túneles** (el del Sistema Castillón V2
-   se lanza solo en segundo plano). URLs: **https://consolidado-castillon.loca.lt** y
-   **https://castillonv2-castillon.loca.lt**
+   Deja esa ventana abierta. El script:
+   - Levanta **los 2 túneles**: `https://consolidado-castillon.loca.lt` (5173) y
+     `https://castillonv2-castillon.loca.lt` (5174).
+   - Cada ~12s **verifica por HTTP** que cada link responda. Si uno da **503** (localtunnel
+     "perdió" el túnel) o se cae, **mata el proceso de ese subdominio y lo relanza solo** —
+     sin tocar el otro. Así ningún link se queda caído aunque el otro siga bien.
 
 3. Para que sobreviva **reinicios** de la PC (dure la semana), instala la tarea programada
    **como Administrador** (una vez):
    ```powershell
    powershell -ExecutionPolicy Bypass -File deploy\install-tunnel-task.ps1
    ```
+
+> ### ⚠️ Si un link da 503 / "Servidor no disponible"
+> Le pasó antes: un túnel se cae por dentro pero el proceso sigue vivo, y localtunnel
+> responde 503. **Qué hacer:**
+> 1. **No abras otra ventana del túnel** — duplicar procesos del mismo subdominio empeora el 503.
+> 2. El watchdog lo reintenta solo; espera ~1 minuto y **recarga** el link.
+> 3. Si sigue caído: **cierra** la ventana del túnel y vuelve a doble-clic en **`ENCENDER.bat`**
+>    (o corre de nuevo `start-tunnel.ps1`). El script **mata los procesos viejos** de cada
+>    subdominio antes de relanzar, así reclama el link limpio.
+> 4. Verifica desde otra red (datos del celular) que el link cargue — a veces tu propia caché
+>    muestra el 503 viejo.
 
 ### Cómo entra el profesor (importante)
 1. Abre **https://consolidado-castillon.loca.lt**.
